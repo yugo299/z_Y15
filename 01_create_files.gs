@@ -6,7 +6,7 @@ function createMonthly() {
   const nFolderID = DriveApp.getFoldersByName(name).next().getId();
   const nFolder = DriveApp.getFolderById(nFolderID);
 
-  name = 'g-P' + vCat + '_' + nMonth;
+  name = 'gP' + vCat + '_' + nMonth;
   tmpP.makeCopy(name, nFolder);
 
   name = 'g' + nMonth + '01_C' + vCat;
