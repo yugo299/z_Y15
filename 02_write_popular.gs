@@ -17,31 +17,10 @@ function functionP() {
 
   writePopular(srcData);
 }
-/*
-function functionP() {
-
-  let nextPageToken = '';
-  let jsonData = getPopular(nextPageToken);
-  const [vID_1, vTitle_1, pDate_1, dur_1, cntV_1, cntL_1, cntC_1, cID_1] = setPopular(jsonData);
-
-  nextPageToken = jsonData.nextPageToken;
-  jsonData = getPopular(nextPageToken);
-  const [vID_2, vTitle_2, pDate_2, dur_2, cntV_2, cntL_2, cntC_2, cID_2] = setPopular(jsonData);
-
-  writePopular([vID_1.concat(vID_2)]);
-  writePopular([vTitle_1.concat(vTitle_2)]);
-  writePopular([vDate_1.concat(vDate_2)]);
-  writePopular([dur_1.concat(dur_2)]);
-  writePopular([cntV_1.concat(cntV_2)]);
-  writePopular([cntL_1.concat(cntL_2)]);
-  writePopular([cntC_1.concat(cntC_2)]);
-  writePopular([cID_1.concat(cID_2)]);
-}
-*/
 
 function checkPopular() {
-  const time = pSheet.getRange(pRow, 2).getValue();
-  const data = pSheet.getRange(pRow, 3).getValue();
+  const time = pSheet.getRange(tRow, 2).getValue();
+  const data = pSheet.getRange(tRow, 3).getValue();
   if (data) {
     console.log('実施済み : ' + time);
     return true
@@ -112,9 +91,10 @@ function getPopular(nextPageToken) {
 
 function writePopular(srcData) {
 
+  let row = tRow;
   for (let i=0; i<srcData.length; i++) {
-    pSheet.getRange(pRow, 3, 1, 100).setValues([srcData[i]]);
-    pRow += 100;
+    pSheet.getRange(row, 3, 1, rNum).setValues([srcData[i]]);
+    row += nNum;
   }
 }
 

@@ -1,4 +1,5 @@
 const vCat = '20'; //ゲーム ■■■■■■
+const nNum = 50, rNum = 100, iNum = 21; //次の指標を見るための加算行数、ランク数、指標の数
 
 let tmpM = new Date();
 tmpM.setDate(tmpM.getDate()+5);
@@ -21,14 +22,30 @@ const cFolder_ID = DriveApp.getFoldersByName('y' + vCat + '_' + tMonth).next().g
 const cFolder = DriveApp.getFolderById(cFolder_ID);
 
 const pFile_ID = cFolder.getFilesByName('gP' + vCat + '_' + tMonth).next().getId();
-const vFile_ID = cFolder.getFilesByName('g'+ tMonth + today + '_V' + vCat).next().getId();
+const iFile_ID = cFolder.getFilesByName('g'+ tMonth + today + '_I' + vCat).next().getId();
 const cFile_ID = cFolder.getFilesByName('g'+ tMonth + today + '_C' + vCat).next().getId();
 
 const pFile = SpreadsheetApp.openById(pFile_ID);
-const vFile = SpreadsheetApp.openById(vFile_ID);
+const iFile = SpreadsheetApp.openById(iFile_ID);
 const cFile = SpreadsheetApp.openById(cFile_ID);
 
-const pSheet = pFile.getSheetByName(today)
+const pSheet = pFile.getSheetByName(today);
+
+const vISheet = iFile.getSheetByName('vI');
+const vRtSheet = iFile.getSheetByName('vRt');
+const vRnSheet = iFile.getSheetByName('vRn');
+const vVSheet = iFile.getSheetByName('vV');
+const vLSheet = iFile.getSheetByName('vL');
+const vCSheet = iFile.getSheetByName('vC');
+const cISheet = iFile.getSheetByName('cI');
+const cRtSheet = iFile.getSheetByName('cRt');
+const cRnSheet = iFile.getSheetByName('cRn');
+const cVSheet = iFile.getSheetByName('cV');
+const cLSheet = iFile.getSheetByName('cL');
+const cCSheet = iFile.getSheetByName('cC');
+const cSSheet = iFile.getSheetByName('cS');
+const cNSheet = iFile.getSheetByName('cN');
+const cTSheet = iFile.getSheetByName('cT');
 
 let tmpD = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy/MM/dd-HH:mm'));
-let pRow = 3 + Math.floor(tmpD.getMinutes()/15) + tmpD.getHours()*4;
+const tRow = 3 + Math.floor(tmpD.getMinutes()/30) + tmpD.getHours()*2;
