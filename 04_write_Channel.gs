@@ -15,8 +15,8 @@ function functionC() {
   let arr = cRnSheet.getRange(1, 1, 1, 148).getDisplayValues()[0];
   cRn.unshift(arr);
 
-  let cP = cPSheet.getRange(2, 1, row, 196).getValues();
-  arr = cRnSheet.getRange(1, 1, 1, 196).getDisplayValues()[0];
+  let cP = cPSheet.getRange(2, 1, row-1, 196).getValues();
+  arr = cPSheet.getRange(1, 1, 1, 196).getDisplayValues()[0];
   cP.unshift(arr);
 
   for (let i=1; i<cI.length; i++) {
@@ -30,7 +30,7 @@ function functionC() {
   }
 
   row = cISheet.getLastRow();
-  const vRt = vRtSheet.getRange(1, 1, row, 196).getDisplayValues();
+  const vRt = vRtSheet.getRange(1, 1, row, 196).getValues();
 
   let src = Array(iNum+1);
 
@@ -83,14 +83,12 @@ function functionC() {
 //  sub, cntN, totV, vDesc, vURL, vTmb, vTags, cDesc, cURL, cTmb,
 //  cCustom, rank
 
-//■■■■■■■■ チャンネル ■■■■■■■■
-
 function cInfo(row, src, data) {
 
   let d = Array(8);
   d[0] = src[0][7];
   d[1] = src[0][8];
-  d[2] = JSON.stringify(src.map(x => x[0]));
+  d[2] = src.map(x => x[0]).join();
   d[3] = src[0][20];
   d[4] = src[0][9];
   d[5] = src[0][17];
@@ -98,7 +96,8 @@ function cInfo(row, src, data) {
   d[7] = src[0][19];
 
   if (row != -1) {
-    d[2] = JSON.stringify(new Set(d[2].concat(JSON.parse(data[row][2]))));
+    d[2] = new Set(d[2].split(',').concat(data[row][2].split(',')));
+    d[2] = d[2].join();
     data[row] = d;
   }
   else { data.push(d) }
@@ -151,7 +150,7 @@ function cRatio(row, src, vRt, data) {
     }
   }
   else {
-    let d = Array(148);
+    let d = Array(196);
     d[0] = src[0][7];
     d[1] = src[0][8];
     d[148+tRow-3] = sumR;
@@ -174,7 +173,7 @@ function cPeriod(row, src, data) {
     //最長期間の更新
     if (data[row][52+tRow-3] > data[row][2]) {
       data[row][2] = data[row][52+tRow-3];
-      data[row][3] = data[row][52+tRow-3] + '～' + rDay + data[0][52+tRow-3];
+      data[row][3] = data[row][148+tRow-3] + '～' + rDay + data[0][148+tRow-3];
     }
   }
   else {
@@ -182,7 +181,7 @@ function cPeriod(row, src, data) {
     d[0] = src[0][7];
     d[1] = src[0][8];
     d[2] = 0.5;
-    d[3] = rDay + data[0][52+tRow-3] + '～' + rDay + data[0][52+tRow-3];
+    d[3] = rDay + data[0][148+tRow-3] + '～' + rDay + data[0][148+tRow-3];
     d[52+tRow-3] = 0.5;
     d[148+tRow-3] = rDay + data[0][148+tRow-3];
     data.push(d);

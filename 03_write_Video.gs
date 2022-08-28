@@ -12,8 +12,8 @@ function functionV() {
   let arr = vRnSheet.getRange(1, 1, 1, 148).getDisplayValues()[0];
   vRn.unshift(arr);
 
-  let vP = vPSheet.getRange(2, 1, row, 196).getValues();
-  arr = vRnSheet.getRange(1, 1, 1, 196).getDisplayValues()[0];
+  let vP = vPSheet.getRange(2, 1, row-1, 196).getValues();
+  arr = vPSheet.getRange(1, 1, 1, 196).getDisplayValues()[0];
   vP.unshift(arr);
 
   for (let i=1; i<vI.length; i++) {

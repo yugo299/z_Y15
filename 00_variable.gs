@@ -6,7 +6,7 @@ tmpM.setDate(tmpM.getDate()+5);
 const nMonth = Utilities.formatDate(tmpM, 'Etc/GMT-4', 'yyMM');
 const tMonth = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMM');
 const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'dd'); //gP_CAT_YM のシート名
-const rDay = JSON.stringify(Utilities.formatDate(new Date(), 'JST', 'yy-MM-dd-')); //ランキング用日時
+const rDay = Utilities.formatDate(new Date(), 'JST', 'yy-MM-dd-'); //ランキング用日時
 
 const tmpP_ID = '1KZqw7EQMfwCHq2FdA_ycxxrc8PvBGEupYeHTIlw-ORU'; //g-PCAT_YM ■■■■■■
 const tmpR_ID = '1t1lO_eUlxNnlAx8acyL9r2PmgwQIUDXD-0SSGZ2vaHQ'; //gYM_R CAT ■■■■■■
