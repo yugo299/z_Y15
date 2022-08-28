@@ -16,6 +16,8 @@ function functionP() {
   }
 
   writePopular(srcData);
+
+  pSheet.getRange(tRow, 1).setValue('popular')
 }
 
 function checkPopular() {
@@ -42,7 +44,7 @@ function getPopular(nextPageToken) {
   let c_tmp = ''
 
   const vfields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url)),tags,channelId),contentDetails(duration),statistics(viewCount,likeCount,commentCount)),nextPageToken';
-  let optJson = {chart: 'mostPopular', regionCode: 'jp', videoCategoryId: vCat, maxResults: 50, fields: vfields, access_token: nextPageToken};
+  let optJson = {chart: 'mostPopular', regionCode: 'jp', videoCategoryId: vCat, maxResults: 50, fields: vfields, pageToken: nextPageToken};
 
   vJson = YouTube.Videos.list('snippet,contentDetails,statistics',optJson);
   token = vJson.nextPageToken;

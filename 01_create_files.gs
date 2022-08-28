@@ -9,11 +9,8 @@ function createMonthly() {
   name = 'gP' + vCat + '_' + nMonth;
   tmpP.makeCopy(name, nFolder);
 
-  name = 'g' + nMonth + '01_C' + vCat;
-  tmpC.makeCopy(name, nFolder);
-
-  name = 'g' + nMonth + '01_V' + vCat;
-  tmpV.makeCopy(name, nFolder);
+  name = 'g' + nMonth + '01_R' + vCat;
+  tmpR.makeCopy(name, nFolder);
 }
 
 function createDaily() {
@@ -27,10 +24,6 @@ function createDaily() {
   const newSheet = copySheet.copyTo(pFile);
   newSheet.setName(tomorrow);
 
-  let name = 'g'+ tMonth + tomorrow + '_C' + vCat;
-  tmpC.makeCopy(name, cFolder);
-
-  name = 'g'+ tMonth + tomorrow + '_V' + vCat;
-  tmpV.makeCopy(name, cFolder);
+  let name = 'g'+ tMonth + tomorrow + '_R' + vCat;
+  tmpR.makeCopy(name, cFolder);
 }
-
