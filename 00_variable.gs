@@ -1,12 +1,16 @@
 const vCat = '2'; //自動車と乗り物 ■■■■■■
 const nNum = 50, rNum = 100, iNum = 21; //次の指標を見るための加算行数、ランク数、指標の数
 
-let tmpM = new Date();
-tmpM.setDate(tmpM.getDate()+5);
-const nMonth = Utilities.formatDate(tmpM, 'Etc/GMT-4', 'yyMM');
+let tmpD = new Date();
+tmpD.setDate(tmpD.getDate()+5);
+const nMonth = Utilities.formatDate(tmpD, 'Etc/GMT-4', 'yyMM');
 const tMonth = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyMM');
 const today = Utilities.formatDate(new Date(), 'Etc/GMT-4', 'dd'); //gP_CAT_YM のシート名
-const rDay = Utilities.formatDate(new Date(), 'JST', 'yy-MM-dd-'); //ランキング用日時
+const rDay = Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd-'); //ランキング用日時
+
+tmpD = new Date();
+tmpD.setDate(tmpD.getDate()+1);
+const tomorrow = Utilities.formatDate(tmpD, 'Etc/GMT-4','dd');
 
 const tmpP_ID = '1KZqw7EQMfwCHq2FdA_ycxxrc8PvBGEupYeHTIlw-ORU'; //g-PCAT_YM ■■■■■■
 const tmpR_ID = '1t1lO_eUlxNnlAx8acyL9r2PmgwQIUDXD-0SSGZ2vaHQ'; //gYM_R CAT ■■■■■■
@@ -46,18 +50,20 @@ const cSSheet = rFile.getSheetByName('cS');
 const cNSheet = rFile.getSheetByName('cN');
 const cTSheet = rFile.getSheetByName('cT');
 
-let tmpD = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy/MM/dd-HH:mm'));
+tmpD = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy/MM/dd-HH:mm'));
 const tRow = 3 + Math.floor(tmpD.getMinutes()/30) + tmpD.getHours()*2;
 
-const ratio = [
-  746,773,800,827,854,881,908,935,962,989,
-  1016,1043,1070,1097,1124,1151,1178,1205,1232,1259,
-  1286,1313,1340,1367,1394,1421,1448,1475,1502,1529,
-  1556,1583,1610,1637,1664,1691,1718,1745,1772,1799,
-  1826,1853,1880,1907,1934,1961,1988,2015,2042,2069,
-  2097,2124,2151,2178,2205,2232,2259,2286,2313,2340,
-  2367,2394,2421,2448,2475,2502,2529,2556,2583,2610,
-  2637,2664,2691,2718,2745,2772,2799,2826,2853,2880,
-  2908,2935,2962,2989,3016,3043,3070,3097,3124,3151,
-  3179,3206,3233,3260,3287,3314,3341,3369,3396,3424
+const ratio = 	[
+  3424,3396,3369,3341,3314,3287,3260,3233,3206,3179,
+  3151,3124,3097,3070,3043,3016,2989,2962,2935,2908,
+  2880,2853,2826,2799,2772,2745,2718,2691,2664,2637,
+  2610,2583,2556,2529,2502,2475,2448,2421,2394,2367,
+  2340,2313,2286,2259,2232,2205,2178,2151,2124,2097,
+  2069,2042,2015,1988,1961,1934,1907,1880,1853,1826,
+  1799,1772,1745,1718,1691,1664,1637,1610,1583,1556,
+  1529,1502,1475,1448,1421,1394,1367,1340,1313,1286,
+  1259,1232,1205,1178,1151,1124,1097,1070,1043,1016,
+  989,962,935,908,881,854,827,800,773,746
 ]
+
+let newC = new Set();
