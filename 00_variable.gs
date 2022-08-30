@@ -12,16 +12,21 @@ tmpD = new Date();
 tmpD.setDate(tmpD.getDate()+1);
 const tomorrow = Utilities.formatDate(tmpD, 'Etc/GMT-4','dd');
 
+tmpD = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy/MM/dd-HH:mm'));
+const tRow = 3 + Math.floor(tmpD.getMinutes()/30) + tmpD.getHours()*2;
+
 const tmpP_ID = '1KZqw7EQMfwCHq2FdA_ycxxrc8PvBGEupYeHTIlw-ORU'; //g-PCAT_YM ■■■■■■
 const tmpR_ID = '1t1lO_eUlxNnlAx8acyL9r2PmgwQIUDXD-0SSGZ2vaHQ'; //gYM_R CAT ■■■■■■
 
 const tmpP = DriveApp.getFileById(tmpP_ID);
 const tmpR = DriveApp.getFileById(tmpR_ID);
 
-const pFolder_ID = '1K1E0GUfEu9d7jAehkSw8lUP7y65ASQ9B'; //y02 ■■■■■■
+const yFolder = DriveApp.getFolderById('12cWVy9KluLgWJVykRLNVTH7IthCLaMgW');
+
+const pFolder_ID = yFolder.getFoldersByName('y' + vCat).next().getId();
 const pFolder = DriveApp.getFolderById(pFolder_ID);
 
-const cFolder_ID = DriveApp.getFoldersByName('y' + vCat + '_' + tMonth).next().getId();
+const cFolder_ID = pFolder.getFoldersByName('y' + vCat + '_' + tMonth).next().getId();
 const cFolder = DriveApp.getFolderById(cFolder_ID);
 
 const pFile_ID = cFolder.getFilesByName('gP' + vCat + '_' + tMonth).next().getId();
@@ -49,9 +54,6 @@ const cCSheet = rFile.getSheetByName('cC');
 const cSSheet = rFile.getSheetByName('cS');
 const cNSheet = rFile.getSheetByName('cN');
 const cTSheet = rFile.getSheetByName('cT');
-
-tmpD = new Date(Utilities.formatDate(new Date(), 'Etc/GMT-4', 'yyyy/MM/dd-HH:mm'));
-const tRow = 3 + Math.floor(tmpD.getMinutes()/30) + tmpD.getHours()*2;
 
 const ratio = 	[
   3424,3396,3369,3341,3314,3287,3260,3233,3206,3179,

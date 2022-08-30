@@ -3,6 +3,7 @@ function functionGG() {
   functionP();
   functionV();
   functionC();
+  functionL();
   createDaily();
   createMonthly();
   transferDaily();
@@ -636,6 +637,49 @@ function writeIndicator (cat, dI, dRn, dRt, dP, dV, dL, dC, dS, dN, dT) {
   }
 }
 
+//■■■■■■■■■ 最新動画等 ■■■■■■■■■
+
+function functionL() {
+  if (tRow != 3) { return }
+
+  const cSheet = pFile.getSheetByName('c');
+  let row = cSheet.getLastRow();
+  let cData = cSheet.getRange(1, 1, row, 92).getValues()
+  const clm = checkClm(cData);
+  let cnt = 0;
+
+  for (let i=1; i<row; i++) {
+    if (cData[row][clm] != '') {
+
+      cnt++;
+      const cfields = 'items(id,snippet(title,customUrl),statistics(viewCount,subscriberCount,videoCount)),nextPageToken';
+      const optJson = {id: vJ.snippet.channelId, fields: cfields};
+      const cJ = YouTube.Channels.list('snippet,statistics',optJson).items[0];
+
+      cData[row][1] = cJ.snippet.title;
+      cData[row][clm] = cData[row][clm-1];
+      cData[row][clm+6] = cJ.statistics.subscriberCount;
+      cData[row][clm+12] = cJ.statistics.videoCount;
+      cData[row][clm+18] = cJ.statistics.viewCount;
+
+      c_tmp = removeAt(cJ.snippet.customUrl)
+      if (c_tmp) { cData[row][2] = 'https://youtube.com/c/'+c_tmp }
+      else { cData[row][2] = 'https://youtube.com/channel/'+vJ.snippet.channelId }
+
+      let aClm = 8;
+      let aData = getActivities(cData[row][0]);
+
+      for (let j=0; j<10; j++){
+        for (let k=0; k<6; k++) { cData[row][aClm+k] = aData[j][k] }
+        aClm += 6;
+      }
+
+    }
+    if (cnt == 100) { return }
+  }
+
+}
+
 //■■■■■■■■■ 日次、月次 ■■■■■■■■■
 
 function createMonthly() {
@@ -699,6 +743,8 @@ function transferDaily() {
 
   transferData1('v', nFile);
   transferData1('c', nFile);
+
+  transferPopular();
 }
 
 function transferData(sName, row, nFile) {
@@ -754,4 +800,78 @@ function transferData1(cat, nFile) {
   nPSheet.getRange(1, 1, row, 4).setValues(src1);
   nPSheet.getRange(1, 5, row, 48).setValues(src2);
   nPSheet.getRange(1, 101, row, 48).setValues(src3);
+}
+
+function transferPopular() {
+
+  const cSheet = pFile.getSheetByName('c');
+  let row = cSheet.getLastRow();
+  let data = cSheet.getRange(1, 1, row, 92).getValues()
+  const clm = checkClm(data);
+
+  row = cISheet.getLastRow();
+  const cI = cISheet.getRange(1, 1, row, 8).getValues();
+  const cRn = cRnSheet.getRange(1, 1, row, 148).getValues();
+  const cRt = cRtSheet.getRange(1, 1, row, 196).getValues();
+  const cP = cPSheet.getRange(1, 1, row-1, 196).getValues();
+  const cS = cSSheet.getRange(1, 1, row, 100).getValues();
+  const cN = cNSheet.getRange(1, 1, row, 100).getValues();
+  const cT = cTSheet.getRange(1, 1, row, 100).getValues();
+
+  for (let i=1; i<row; i++) {
+    row = data.findIndex(x => x[0] === cI[i][0]);
+    data[row][1] = cI[i][1];
+    data[row][2] = cI[i][6];
+    data[row][3] = cI[i][2];
+    data[row][4] = cRn[i][2];
+    data[row][5] = cRn[i][3];
+    data[row][6] = cP[i][2];
+    data[row][7] = cP[i][3];
+
+    data[row][clm] = cRt[i][99];
+    data[row][clm+6] = cS[i][99];
+    data[row][clm+12] = cN[i][99];
+    data[row][clm+18] = cT[i][99];
+
+    let aClm = 8;
+    let aData = getActivities(data[row][0]);
+    for (let j=0; j<10; j++){
+      for (let k=0; k<6; k++) { data[row][aClm+k] = aData[j][k] }
+      aClm += 6;
+    }
+  }
+}
+
+function checkClm(data) {
+
+  for (let i=73; i>68; i--) {
+    if (data[2][i] != '') {
+      if (new Date().getDay() != 1) { return i }
+      else { return i+1 }
+    }
+  }
+  if (new Date().getDay() === 1) { return 39 }
+  console.log('■■■■■■■■■■  エラー : checkClm  ■■■■■■■■■■')
+}
+
+function getActivities(id) {
+
+  let data = [...Array(10)].map(() => Array(6));
+  let i = 0
+
+  const part = 'id,snippet'
+  const afields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url))))';
+  const optJson = {channelId: id, fields: afields, maxResults: 10};
+  const resJson = YouTube.Activities.list(part, optJson);
+
+  resJson.items.forEach((item) => {
+    data[i][0] = item.id;
+    data[i][1] = item.snippet.title;
+    data[i][2] = item.snippet.publishedAt;
+    data[i][3] = item.snippet.description;
+    data[i][4] = 'https://youtube.com/watch?v=' + item.id;
+    data[i++][5] = item.snippet.thumbnails.medium.url;
+  })
+
+  return data
 }
