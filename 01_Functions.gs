@@ -1,12 +1,21 @@
 function functionGG() {
   if (checkPopular()) { return }
   functionP();
+  console.log('DONE : functionP');
   functionV();
+  console.log('DONE : functionV');
   functionC();
+  console.log('DONE : functionC');
   functionL();
+  console.log('DONE : functionL');
   createDaily();
+  console.log('DONE : createDaily');
   createMonthly();
+  console.log('DONE : createMonthly');
   transferDaily();
+  console.log('DONE : transferDaily');
+  transferMonthly();
+  console.log('DONE : transferMonthly');
 }
 
 //■■■■■■■■■ 急上昇 ■■■■■■■■■
@@ -14,7 +23,8 @@ function functionGG() {
 function functionP() {
 
   const srcData1 = getPopular('');
-  const srcData2 = getPopular(srcData1[0]);
+  let srcData2 = [];
+  if (srcData1[0]) { srcData2 = getPopular(srcData1[0]) }
 
 //  nextPageToken, vID, vTitle, vDate, dur, cntV, cntL, cntC, cID, cTitle,
 //  cDate, sub, cntN, totV, vDesc, vURL, vTmb, vTags, cDesc, cURL,
@@ -106,7 +116,7 @@ function writePopular(srcData) {
 
   let row = tRow;
   for (let i=0; i<srcData.length; i++) {
-    pSheet.getRange(row, 3, 1, rNum).setValues([srcData[i]]);
+    pSheet.getRange(row, 3, 1, srcData[i].length).setValues([srcData[i]]);
     row += nNum;
   }
 }
@@ -392,7 +402,7 @@ function functionC() {
     cT[i][2] = '', cT[i][3] = '';
   }
 
-  row = cISheet.getLastRow();
+  row = vISheet.getLastRow();
   const vRt = vRtSheet.getRange(1, 1, row, 196).getValues();
 
   let src = Array(iNum+1);
@@ -643,41 +653,63 @@ function functionL() {
   if (tRow != 3) { return }
 
   const cSheet = pFile.getSheetByName('c');
-  let row = cSheet.getLastRow();
-  let cData = cSheet.getRange(1, 1, row, 92).getValues()
+  const row = cSheet.getLastRow();
+  let cData = cSheet.getRange(1, 1, row, 92).getValues();
   const clm = checkClm(cData);
   let cnt = 0;
 
   for (let i=1; i<row; i++) {
-    if (cData[row][clm] != '') {
+    if (cData[i][clm] === '') {
 
       cnt++;
       const cfields = 'items(id,snippet(title,customUrl),statistics(viewCount,subscriberCount,videoCount)),nextPageToken';
-      const optJson = {id: vJ.snippet.channelId, fields: cfields};
+      const optJson = {id: cData[i][0], fields: cfields};
       const cJ = YouTube.Channels.list('snippet,statistics',optJson).items[0];
 
-      cData[row][1] = cJ.snippet.title;
-      cData[row][clm] = cData[row][clm-1];
-      cData[row][clm+6] = cJ.statistics.subscriberCount;
-      cData[row][clm+12] = cJ.statistics.videoCount;
-      cData[row][clm+18] = cJ.statistics.viewCount;
+      cData[i][1] = cJ.snippet.title;
+      cData[i][clm] = cData[i][clm-1];
+      cData[i][clm+6] = cJ.statistics.subscriberCount;
+      cData[i][clm+12] = cJ.statistics.videoCount;
+      cData[i][clm+18] = cJ.statistics.viewCount;
 
-      c_tmp = removeAt(cJ.snippet.customUrl)
-      if (c_tmp) { cData[row][2] = 'https://youtube.com/c/'+c_tmp }
-      else { cData[row][2] = 'https://youtube.com/channel/'+vJ.snippet.channelId }
+      c_tmp = removeAt(cJ.snippet.customUrl);
+      if (c_tmp) { cData[i][2] = 'https://youtube.com/c/'+c_tmp }
+      else { cData[i][2] = 'https://youtube.com/channel/'+cJ.id }
 
       let aClm = 8;
-      let aData = getActivities(cData[row][0]);
+      let aData = getActivities(cData[i][0]);
 
       for (let j=0; j<10; j++){
-        for (let k=0; k<6; k++) { cData[row][aClm+k] = aData[j][k] }
+        for (let k=0; k<6; k++) { cData[i][aClm+k] = aData[j][k] }
         aClm += 6;
       }
 
     }
-    if (cnt == 100) { return }
+    if (cnt == 100) { break }
   }
+  cSheet.getRange(1, 1, row, 92).setValues(cData)
+}
 
+function getActivities(id) {
+
+  let data = [...Array(10)].map(() => Array(6));
+  let i = 0
+
+  const part = 'id,snippet'
+  const afields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url))))';
+  const optJson = {channelId: id, fields: afields, maxResults: 10};
+  const resJson = YouTube.Activities.list(part, optJson);
+
+  resJson.items.forEach((item) => {
+    data[i][0] = item.id;
+    data[i][1] = item.snippet.title;
+    data[i][2] = item.snippet.publishedAt;
+    data[i][3] = item.snippet.description;
+    data[i][4] = 'https://youtube.com/watch?v=' + item.id;
+    data[i++][5] = item.snippet.thumbnails.medium.url;
+  })
+
+  return data
 }
 
 //■■■■■■■■■ 日次、月次 ■■■■■■■■■
@@ -747,6 +779,53 @@ function transferDaily() {
   transferPopular();
 }
 
+function transferMonthly() {
+  if (tRow != 47+3 || tomorrow != '01' ) { return }
+
+  let name = 'y'+ vCat + '_' + nMonth;
+  const nFolderID = pFolder.getFoldersByName(name).next().getId();
+  const nFolder = DriveApp.getFolderById(nFolderID);
+
+  name = 'gP' + vCat + '_' + nMonth;
+  const nFile_ID = nFolder.getFilesByName(name).next().getId();
+  const nFile = SpreadsheetApp.openById(nFile_ID);
+
+  const cSheet = pFile.getSheetByName('c');
+  const nSheet = nFile.getSheetByName('c');
+
+  name = 'g'+ nMonth + tomorrow + '_R' + vCat;
+  const idFile_ID = nFolder.getFilesByName(name).next().getId();
+  const idFile = SpreadsheetApp.openById(idFile_ID);
+  const idSheet = idFile.getSheetByName('cI');
+
+  let row = idSheet.getLastRow();
+  const idList = idSheet.getRange(1, 1, row, 1).getValues().map(x => x[0]);
+
+  row = cSheet.getLastRow();
+  let src = cSheet.getRange(1, 1, row, 92).getValues();
+
+  src = src.filter(function(x){
+    let a = idList.findIndex(id => id === x[0]);
+    return ~a
+  })
+
+  const clm = (src[1][73] === '') ? 72: 73;
+  const src1 = src.map(x => x.slice(4,8));
+  const src2 = src.map(x => x.slice(clm,clm+1));
+  const src3 = src.map(x => x.slice(clm+6,clm+6+1));
+  const src4 = src.map(x => x.slice(clm+12,clm+12+1));
+  const src5 = src.map(x => x.slice(clm+18,clm+18+1));
+  src = src.map(x => x.slice(0,2));
+
+  row = src.length - 1;
+  nSheet.getRange(2, 1, row, 2).setValues(src.slice(1));
+  nSheet.getRange(2, 5, row, 4).setValues(src1.slice(1));
+  nSheet.getRange(2, 69, row, 1).setValues(src2.slice(1));
+  nSheet.getRange(2, 75, row, 1).setValues(src3.slice(1));
+  nSheet.getRange(2, 81, row, 1).setValues(src4.slice(1));
+  nSheet.getRange(2, 87, row, 1).setValues(src5.slice(1));
+}
+
 function transferData(sName, row, nFile) {
 
   const cSheet = rFile.getSheetByName(sName);
@@ -796,7 +875,7 @@ function transferData1(cat, nFile) {
   src3 = src1.map(x => x.slice(148));
   src1 = src1.map(x => x.slice(0, 4));
 
-  row = src.length;
+  row = src1.length;
   nPSheet.getRange(1, 1, row, 4).setValues(src1);
   nPSheet.getRange(1, 5, row, 48).setValues(src2);
   nPSheet.getRange(1, 101, row, 48).setValues(src3);
@@ -806,72 +885,58 @@ function transferPopular() {
 
   const cSheet = pFile.getSheetByName('c');
   let row = cSheet.getLastRow();
-  let data = cSheet.getRange(1, 1, row, 92).getValues()
+  let data = cSheet.getRange(1, 1, row, 92).getValues();
   const clm = checkClm(data);
 
   row = cISheet.getLastRow();
   const cI = cISheet.getRange(1, 1, row, 8).getValues();
   const cRn = cRnSheet.getRange(1, 1, row, 148).getValues();
   const cRt = cRtSheet.getRange(1, 1, row, 196).getValues();
-  const cP = cPSheet.getRange(1, 1, row-1, 196).getValues();
+  const cP = cPSheet.getRange(1, 1, row, 196).getValues();
   const cS = cSSheet.getRange(1, 1, row, 100).getValues();
   const cN = cNSheet.getRange(1, 1, row, 100).getValues();
   const cT = cTSheet.getRange(1, 1, row, 100).getValues();
 
   for (let i=1; i<row; i++) {
-    row = data.findIndex(x => x[0] === cI[i][0]);
-    data[row][1] = cI[i][1];
-    data[row][2] = cI[i][6];
-    data[row][3] = cI[i][2];
-    data[row][4] = cRn[i][2];
-    data[row][5] = cRn[i][3];
-    data[row][6] = cP[i][2];
-    data[row][7] = cP[i][3];
 
-    data[row][clm] = cRt[i][99];
-    data[row][clm+6] = cS[i][99];
-    data[row][clm+12] = cN[i][99];
-    data[row][clm+18] = cT[i][99];
+    let d = Array(92);
+    d[0] = cI[i][0];
+    d[1] = cI[i][1];
+    d[2] = cI[i][6];
+    d[3] = cI[i][2];
+    d[4] = cRn[i][2];
+    d[5] = cRn[i][3];
+    d[6] = cP[i][2];
+    d[7] = cP[i][3];
+
+    d[clm] = cRt[i][99];
+    d[clm+6] = cS[i][99];
+    d[clm+12] = cN[i][99];
+    d[clm+18] = cT[i][99];
 
     let aClm = 8;
-    let aData = getActivities(data[row][0]);
+    let aData = getActivities(d[0]);
     for (let j=0; j<10; j++){
-      for (let k=0; k<6; k++) { data[row][aClm+k] = aData[j][k] }
+      for (let k=0; k<6; k++) { d[aClm+k] = aData[j][k] }
       aClm += 6;
     }
+
+    let cRow = data.findIndex(x => x[0] === cI[i][0]);
+    if (~cRow) { data[cRow] = d }
+    else { data.push(d) }
   }
+
+  cSheet.getRange(1, 1, data.length, 92).setValues(data)
 }
 
 function checkClm(data) {
 
-  for (let i=73; i>68; i--) {
-    if (data[2][i] != '') {
+  for (let i=72; i>68; i--) {
+    if (data[1][i] != '') {
       if (new Date().getDay() != 1) { return i }
       else { return i+1 }
     }
   }
-  if (new Date().getDay() === 1) { return 39 }
+  if (tomorrow === '01') { return 69 }
   console.log('■■■■■■■■■■  エラー : checkClm  ■■■■■■■■■■')
-}
-
-function getActivities(id) {
-
-  let data = [...Array(10)].map(() => Array(6));
-  let i = 0
-
-  const part = 'id,snippet'
-  const afields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url))))';
-  const optJson = {channelId: id, fields: afields, maxResults: 10};
-  const resJson = YouTube.Activities.list(part, optJson);
-
-  resJson.items.forEach((item) => {
-    data[i][0] = item.id;
-    data[i][1] = item.snippet.title;
-    data[i][2] = item.snippet.publishedAt;
-    data[i][3] = item.snippet.description;
-    data[i][4] = 'https://youtube.com/watch?v=' + item.id;
-    data[i++][5] = item.snippet.thumbnails.medium.url;
-  })
-
-  return data
 }
