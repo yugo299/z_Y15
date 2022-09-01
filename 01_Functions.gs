@@ -136,7 +136,7 @@ function removeAt(str) {
 
 function convertTime(duration) {
 
-  if (!duration || duration==='P0D') { return }
+  if (duration === '' || duration === 'P0D' || duration.slice(0,2) === 'P1') { return }
   var reg = new RegExp('^PT([0-9]*H)?([0-9]*M)?([0-9]*S)?');
   var regResult = duration.match(reg);
 
@@ -930,6 +930,7 @@ function transferPopular() {
 }
 
 function checkClm(data) {
+  if (data.length === 1) { return 69 }
 
   for (let i=72; i>68; i--) {
     if (data[1][i] != '') {
