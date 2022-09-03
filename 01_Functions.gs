@@ -694,6 +694,7 @@ function getActivities(id) {
 
   let data = [...Array(10)].map(() => Array(6));
   let i = 0
+  if (id === '') { return data }
 
   const part = 'id,snippet'
   const afields = 'items(id,snippet(title,description,publishedAt,thumbnails(medium(url))))';

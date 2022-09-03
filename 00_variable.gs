@@ -21,9 +21,9 @@ const tmpR_ID = '1t1lO_eUlxNnlAx8acyL9r2PmgwQIUDXD-0SSGZ2vaHQ'; //gYM_R CAT â– â
 const tmpP = DriveApp.getFileById(tmpP_ID);
 const tmpR = DriveApp.getFileById(tmpR_ID);
 
-const yFolder = DriveApp.getFolderById('12cWVy9KluLgWJVykRLNVTH7IthCLaMgW');
+const gFolder = DriveApp.getFolderById('14u0G2CGKp3TOYkOYGRcacZ25wY5vUDls');
 
-const pFolder_ID = yFolder.getFoldersByName('y' + vCat).next().getId();
+const pFolder_ID = gFolder.getFoldersByName('y' + vCat).next().getId();
 const pFolder = DriveApp.getFolderById(pFolder_ID);
 
 const cFolder_ID = pFolder.getFoldersByName('y' + vCat + '_' + tMonth).next().getId();
